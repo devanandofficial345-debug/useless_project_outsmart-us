@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guess The Image!</title>
+<style>
+  :root{
+    --bg-grad-a:#12181f;
+    --bg-grad-b:#1f2733;
+    --card-bg:#ffffff;
+    --title-color:#5b2be0;
+    --header-color:#1fae4a;
+    --btn-blue:#2e8bf0;
+    --btn-blue-hover:#2277d8;
+    --btn-green:#3fce5f;
+    --btn-green-hover:#31b850;
+    --text-dark:#26313d;
+    --text-muted:#5b6773;
+    --wrong-bg:#ffe1e6;
+    --wrong-text:#c81e3a;
+    --empty-bg:#ffe1e6;
+    --empty-text:#c81e3a;
+    --input-border:#cfd8e2;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(135deg,var(--bg-grad-a),var(--bg-grad-b));
+    min-height:100vh;
+    color:var(--text-dark);
+    padding:24px 12px 60px;
+  }
+
+  .app{
+    max-width:640px;
+    margin:0 auto;
+  }
+
+  /* ---------- Landing screen ---------- */
+  .landing-card{
+    background:#d9f2fb;
+    border-radius:14px;
+    padding:28px 20px 32px;
+    text-align:center;
+    box-shadow:0 4px 18px rgba(30,60,100,0.12);
+  }
+  .landing-card h1{
+    margin:0 0 8px;
+    font-size:1.6rem;
+    color:var(--title-color);
+  }
+  .landing-card .tagline{
+    margin:0 0 18px;
+    font-size:0.85rem;
+    font-style:italic;
+    color:var(--text-muted);
+  }
+  .landing-card p{
+    font-size:0.9rem;
+    line-height:1.5;
+    color:var(--text-dark);
+    max-width:480px;
+    margin:0 auto 22px;
+  }
+  .start-btn{
+    background:var(--btn-blue);
+    color:#fff;
+    border:none;
+    border-radius:20px;
+    padding:10px 28px;
+    font-size:0.95rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .start-btn:hover{background:var(--btn-blue-hover);}
+
+  /* ---------- Level screen ---------- */
+  .level-screen{display:none;}
+  .level-screen.active{display:block;}
+
+  .level-header{
+    text-align:center;
+    margin-bottom:16px;
+  }
+  .level-header h2{
+    color:var(--header-color);
+    margin:0 0 6px;
+    font-size:1.4rem;
+  }
+  .level-header p{
+    margin:0;
+    font-size:0.82rem;
+    color:var(--text-muted);
+    max-width:480px;
+    margin:0 auto;
+    line-height:1.4;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-top:18px;
+  }
+  @media (max-width:480px){
+    .grid{grid-template-columns:repeat(2,1fr);}
+  }
+
+  .item-card{
+    background:var(--card-bg);
+    border-radius:10px;
+    padding:12px 8px 10px;
+    text-align:center;
+    box-shadow:0 2px 8px rgba(30,60,100,0.08);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+  }
+  .item-icon{
+    font-size:2.1rem;
+    line-height:1;
+    height:2.4rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .item-icon svg{width:34px;height:34px;}
+
+  .item-input{
+    width:100%;
+    padding:6px 6px;
+    font-size:0.72rem;
+    border:1px solid var(--input-border);
+    border-radius:6px;
+    text-align:center;
+    color:var(--text-dark);
+  }
+  .item-input:focus{outline:2px solid var(--btn-blue);outline-offset:1px;}
+
+  .check-btn{
+    width:100%;
+    background:var(--btn-blue);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:6px 4px;
+    font-size:0.7rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .check-btn:hover{background:var(--btn-blue-hover);}
+
+  .feedback{
+    font-size:0.66rem;
+    line-height:1.3;
+    min-height:1.2em;
+    font-weight:600;
+  }
+  .feedback.wrong{color:var(--wrong-text);}
+  .feedback.empty{color:var(--empty-text);}
+  .feedback.correct{color:#1fae4a;}
+
+  .next-btn{
+    display:block;
+    width:100%;
+    margin-top:18px;
+    background:var(--btn-green);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:11px;
+    font-size:0.95rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .next-btn:hover{background:var(--btn-green-hover);}
+
+  .level-check-btn{
+    display:block;
+    width:100%;
+    margin-top:18px;
+    background:var(--btn-blue);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:11px;
+    font-size:0.95rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .level-check-btn:hover{background:var(--btn-blue-hover);}
+
+  .level-message{
+    text-align:center;
+    font-size:0.78rem;
+    font-weight:600;
+    color:var(--empty-text);
+    min-height:1.2em;
+    margin-top:10px;
+  }
+
+  /* ---------- Drag & match level ---------- */
+  .dragmatch-targets{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    margin-top:18px;
+  }
+  .dragmatch-target{
+    background:var(--card-bg);
+    border:2px dashed var(--input-border);
+    border-radius:10px;
+    padding:10px 8px;
+    width:120px;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+  }
+  .target-label{
+    font-size:0.72rem;
+    font-weight:700;
+    color:var(--text-dark);
+    text-transform:capitalize;
+  }
+  .target-slot{
+    width:56px;
+    height:56px;
+    border-radius:8px;
+    background:#f3f6fa;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.8rem;
+  }
+  .dragmatch-tray{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    justify-content:center;
+    padding:16px 10px;
+    margin-top:22px;
+    background:rgba(255,255,255,0.08);
+    border-radius:12px;
+    min-height:80px;
+  }
+  .drag-chip{
+    font-size:2.1rem;
+    line-height:1;
+    padding:8px;
+    cursor:grab;
+    touch-action:none;
+    user-select:none;
+  }
+  .drag-chip.dragging{
+    position:fixed;
+    z-index:200;
+    pointer-events:none;
+    transform:scale(1.15);
+  }
+
+  /* ---------- Popup modal ---------- */
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,20,30,0.6);
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .modal-overlay.active{display:flex;}
+  .modal-box{
+    background:#fff;
+    border-radius:14px;
+    max-width:340px;
+    width:100%;
+    padding:18px 18px 20px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+    position:relative;
+  }
+  .modal-close{
+    position:absolute;
+    top:8px;
+    right:10px;
+    background:none;
+    border:none;
+    font-size:1.2rem;
+    color:var(--text-muted);
+    cursor:pointer;
+    line-height:1;
+  }
+  .modal-box img{
+    width:100%;
+    max-width:220px;
+    border-radius:10px;
+    margin:6px auto 14px;
+    display:block;
+  }
+  .modal-box p{
+    margin:0;
+    font-size:0.85rem;
+    font-weight:600;
+    color:var(--wrong-text);
+    line-height:1.4;
+  }
+
+  /* ---------- End screen ---------- */
+  .end-card{
+    background:#d9f2fb;
+    border-radius:14px;
+    padding:32px 20px;
+    text-align:center;
+    box-shadow:0 4px 18px rgba(30,60,100,0.12);
+  }
+  .end-card h1{color:var(--title-color);margin:0 0 10px;font-size:1.4rem;}
+  .end-card p{color:var(--text-dark);font-size:0.9rem;margin:0 0 20px;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Landing -->
+  <div id="landing" class="level-screen active">
+    <div class="landing-card">
+      <h1>Guess The Image!</h1>
+      <p class="tagline">"I'm sure you'll get it wrong — I'm smarter than you."</p>
+      <p>Guess the image in the following challenges. If you answer it correctly you are the most intelligent guy in this world 😏!</p>
+      <button class="start-btn" onclick="goToLevel(0)">START CHALLENGE</button>
+    </div>
+  </div>
+
+  <!-- Levels get injected here -->
+  <div id="levels-container"></div>
+
+  <!-- End -->
+  <div id="end" class="level-screen">
+    <div class="end-card">
+      <h1>That's every challenge!</h1>
+      <p>Somehow, none of that was right. Give it another go?</p>
+      <button class="start-btn" onclick="restart()">PLAY AGAIN</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Popup modal for incomplete answers -->
+<div class="modal-overlay" id="stoobid-modal" onclick="if(event.target===this)closeStoobidModal();">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeStoobidModal()">✕</button>
+    <img src="data:image/webp;base64,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" alt="Are you stupid reaction">
+    <p>Are stuuuppid ,thr slots are there so that you can fill them or did you think they are for show, Huh.</p>
+  </div>
+</div>
+
+<script>
+  // ---------- Data ----------
+  const seahorseSVG = `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M28 6c6 0 10 4 10 9 0 4-2 6-2 9 0 3 3 3 5 5s2 5-1 7c2 1 3 3 3 5 0 4-3 6-7 6-1 3-1 6 1 8 3 3 2 8-2 9-3 1-6-1-7-4-3 1-6 0-8-2-3-3-3-8 0-11-3-2-4-6-3-9-4-1-6-4-6-8 0-3 2-5 4-6-2-2-3-5-2-8 1-4 5-7 8-9 1-3 4-4 7-1z" fill="#4fb8d6"/>
+    <circle cx="30" cy="15" r="1.6" fill="#1c3a44"/>
+  </svg>`;
+
+  const HEART_EMOJI = { blue: "💙", red: "❤️", green: "💚", black: "🖤", white: "🤍" };
+  const HEART_CYCLE = ["blue", "red", "green", "black", "white"];
+
+  const levels = [
+    {
+      title: "Find our Names",
+      subtitle: "Can you name these animals? Type the name and click check! Can you spot the pattern in this challenge?",
+      items: [
+        {icon:"🐶"}, {icon:"🐱"}, {icon:"🐘"}, {icon:"🦁"},
+        {icon:"🐸"}, {icon:"🐧"}, {icon:"🦋"}, {icon:"🐢"}
+      ],
+      names: ["dog","cat","elephant","lion","frog","penguin","butterfly","turtle"],
+      placeholder: "What animal is this?"
+    },
+    {
+      title: "Find Our Names",
+      subtitle: "Can you name these clothing items? Type the name and click check! Can you spot the pattern?",
+      items: [
+        {icon:"👕"}, {icon:"👗"}, {icon:"🧢"}, {icon:"👞"},
+        {icon:"🧦"}, {icon:"👖"}, {icon:"🧥"}, {icon:"🕶️"}
+      ],
+      names: ["shirt","dress","cap","shoe","socks","pants","jacket","sunglasses"],
+      placeholder: "What clothing is this?",
+      mode: "reverse"
+    },
+    {
+      title: "Find Our Names",
+      subtitle: "Can you name these sea creatures? Type the name and click check! Can you spot the pattern?",
+      items: [
+        {icon:"🦈"}, {icon:"🦐"}, {icon:"🐟"}, {icon:"🐋"},
+        {icon:"🫍"}, {icon:"🦭"}, {icon:seahorseSVG, isSVG:true},
+        {icon:"🐬"}, {icon:"🐙"}
+      ],
+      names: ["shark","shrimp","tuna","blue whale","orca","seal","sea horse","dolphin","octopus"],
+      colors: ["grey","orange","blue","blue","black","off white","yellow","sky blue","red"],
+      placeholder: "What fish is this?",
+      mode: "color"
+    },
+    {
+      title: "Find Our Names",
+      subtitle: "Can you name these fruits? Type the name and click check! Watch closely when you check...",
+      items: [
+        {icon:"🍊"}, {icon:"🍎"}, {icon:"🍓"}, {icon:"🍉"}, {icon:"🥭"}
+      ],
+      names: ["orange","apple","strawberry","watermelon","mango"],
+      placeholder: "What fruit is this?",
+      mode: "shift"
+    },
+    {
+      title: "Find Our Names",
+      subtitle: "Memorize these flowers fast — they vanish after 5 seconds! Type each name from memory and click check.",
+      items: [
+        {icon:"🌹"}, {icon:"🌻"}, {icon:"🪷"},
+        {icon:"🌷"}, {icon:"🌺"}
+      ],
+      names: ["rose","sunflower","lotus","tulip","hibiscus"],
+      placeholder: "What flower was it?",
+      mode: "memory"
+    },
+    {
+      title: "Find Our Names",
+      subtitle: "Name each heart's colour... but get it right and it changes colour right before your eyes!",
+      items: [
+        {icon: HEART_EMOJI.blue}, {icon: HEART_EMOJI.red}, {icon: HEART_EMOJI.green},
+        {icon: HEART_EMOJI.black}, {icon: HEART_EMOJI.white}
+      ],
+      names: ["blue","red","green","black","white"],
+      placeholder: "What colour is this heart?",
+      mode: "cycle"
+    },
+    {
+      title: "Match The Items",
+      subtitle: "Drag each picture up to the name it belongs to!",
+      mode: "dragmatch",
+      targets: ["doll", "painting palette", "needle", "thread"],
+      items: [
+        {key:"needle", icon:"🪡"},
+        {key:"thread", icon:"🧵"},
+        {key:"doll", icon:"🪆"},
+        {key:"painting palette", icon:"🎨"}
+      ],
+      names: ["doll", "painting palette", "needle", "thread"]
+    }
+  ];
+
+  const container = document.getElementById("levels-container");
+
+  levels.forEach((level, levelIndex) => {
+    const screen = document.createElement("div");
+    screen.className = "level-screen";
+    screen.id = "level-" + levelIndex;
+
+    if(level.mode === "dragmatch"){
+      let targetsHTML = "";
+      level.targets.forEach(key => {
+        const slug = key.replace(/\s+/g, "-");
+        targetsHTML += `
+          <div class="dragmatch-target" data-key="${key}">
+            <div class="target-label">${key}</div>
+            <div class="target-slot" id="slot-${levelIndex}-${slug}"></div>
+            <div class="feedback" id="feedback-${levelIndex}-${slug}"></div>
+          </div>
+        `;
+      });
+
+      let trayHTML = "";
+      level.items.forEach(item => {
+        const slug = item.key.replace(/\s+/g, "-");
+        trayHTML += `<div class="drag-chip" id="chip-${levelIndex}-${slug}" data-key="${item.key}">${item.icon}</div>`;
+      });
+
+      screen.innerHTML = `
+        <div class="level-header">
+          <h2>${level.title}</h2>
+          <p>${level.subtitle}</p>
+        </div>
+        <div class="dragmatch-targets">${targetsHTML}</div>
+        <div class="dragmatch-tray" id="tray-${levelIndex}">${trayHTML}</div>
+        <button class="level-check-btn" onclick="checkLevel(${levelIndex})">Check Answer</button>
+        <button class="next-btn" onclick="goToLevel(${levelIndex + 1})">Next Challenge →</button>
+      `;
+
+      container.appendChild(screen);
+
+      screen.querySelectorAll(".drag-chip").forEach(chip => {
+        chip.dataset.level = levelIndex;
+        makeDraggable(chip);
+      });
+
+      return;
+    }
+
+    const n = level.names.length;
+
+    let gridHTML = "";
+    level.items.forEach((item, i) => {
+      const iconHTML = item.isSVG ? item.icon : item.icon;
+      gridHTML += `
+        <div class="item-card">
+          <div class="item-icon" id="icon-${levelIndex}-${i}">${iconHTML}</div>
+          <input type="text" class="item-input" id="input-${levelIndex}-${i}" placeholder="${level.placeholder}" onkeydown="if(event.key==='Enter'){checkLevel(${levelIndex});}">
+          <div class="feedback" id="feedback-${levelIndex}-${i}"></div>
+        </div>
+      `;
+    });
+
+    screen.innerHTML = `
+      <div class="level-header">
+        <h2>${level.title}</h2>
+        <p>${level.subtitle}</p>
+      </div>
+      <div class="grid">${gridHTML}</div>
+      <button class="level-check-btn" onclick="checkLevel(${levelIndex})">Check Answer</button>
+      <button class="next-btn" onclick="goToLevel(${levelIndex + 1})">Next Challenge →</button>
+    `;
+
+    container.appendChild(screen);
+  });
+
+  function mirrorName(levelIndex, i){
+    const n = levels[levelIndex].names.length;
+    const mirrorIndex = n - 1 - i;
+    return levels[levelIndex].names[mirrorIndex];
+  }
+
+  let dragChip = null;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+
+  function makeDraggable(chip){
+    chip.addEventListener("pointerdown", (e) => {
+      dragChip = chip;
+      const rect = chip.getBoundingClientRect();
+      dragOffsetX = e.clientX - rect.left;
+      dragOffsetY = e.clientY - rect.top;
+      chip.classList.add("dragging");
+      chip.style.left = rect.left + "px";
+      chip.style.top = rect.top + "px";
+      chip.setPointerCapture(e.pointerId);
+    });
+
+    chip.addEventListener("pointermove", (e) => {
+      if(dragChip !== chip) return;
+      chip.style.left = (e.clientX - dragOffsetX) + "px";
+      chip.style.top = (e.clientY - dragOffsetY) + "px";
+    });
+
+    const drop = (e) => {
+      if(dragChip !== chip) return;
+      dragChip = null;
+      chip.classList.remove("dragging");
+      chip.style.left = "";
+      chip.style.top = "";
+
+      // Temporarily hide the chip so we can see what's underneath the pointer
+      chip.style.visibility = "hidden";
+      const under = document.elementFromPoint(e.clientX, e.clientY);
+      chip.style.visibility = "";
+
+      const levelIndex = chip.dataset.level;
+      const trayEl = document.getElementById(`tray-${levelIndex}`);
+      const targetEl = under ? under.closest(".dragmatch-target") : null;
+
+      if(targetEl){
+        const slot = targetEl.querySelector(".target-slot");
+        if(slot.firstElementChild && slot.firstElementChild !== chip){
+          trayEl.appendChild(slot.firstElementChild);
+        }
+        slot.appendChild(chip);
+      } else {
+        trayEl.appendChild(chip);
+      }
+    };
+
+    chip.addEventListener("pointerup", drop);
+    chip.addEventListener("pointercancel", drop);
+  }
+
+  function checkDragMatchLevel(levelIndex){
+    const level = levels[levelIndex];
+    let allFilled = true;
+
+    level.targets.forEach(key => {
+      const slug = key.replace(/\s+/g, "-");
+      const slot = document.getElementById(`slot-${levelIndex}-${slug}`);
+      if(!slot.firstElementChild) allFilled = false;
+    });
+
+    if(!allFilled){
+      openStoobidModal();
+      return;
+    }
+
+    level.targets.forEach(key => {
+      const slug = key.replace(/\s+/g, "-");
+      const slot = document.getElementById(`slot-${levelIndex}-${slug}`);
+      const feedback = document.getElementById(`feedback-${levelIndex}-${slug}`);
+      const placedKey = slot.firstElementChild.dataset.key;
+
+      if(placedKey === key){
+        feedback.textContent = "Your input is correct!";
+        feedback.className = "feedback correct";
+      } else {
+        feedback.textContent = `Your input is wrong, the right answer is ${key}.`;
+        feedback.className = "feedback wrong";
+      }
+    });
+  }
+
+  function reverseString(str){
+    return str.split("").reverse().join("");
+  }
+
+  function getAnswer(levelIndex, i){
+    const level = levels[levelIndex];
+    if(level.mode === "reverse"){
+      return reverseString(level.names[i]);
+    }
+    if(level.mode === "color"){
+      return level.colors[i];
+    }
+    if(level.mode === "shift"){
+      return level.names[i];
+    }
+    if(level.mode === "memory"){
+      return level.names[i];
+    }
+    if(level.mode === "cycle"){
+      if(!heartState[levelIndex]) heartState[levelIndex] = [...level.names];
+      return heartState[levelIndex][i];
+    }
+    return mirrorName(levelIndex, i);
+  }
+
+  function allFilled(levelIndex){
+    const n = levels[levelIndex].names.length;
+    for(let j = 0; j < n; j++){
+      const inp = document.getElementById(`input-${levelIndex}-${j}`);
+      if(inp.value.trim() === "") return false;
+    }
+    return true;
+  }
+
+  function checkLevel(levelIndex){
+    const level = levels[levelIndex];
+
+    if(level.mode === "dragmatch"){
+      checkDragMatchLevel(levelIndex);
+      return;
+    }
+
+    const n = level.names.length;
+
+    if(!allFilled(levelIndex)){
+      openStoobidModal();
+      return;
+    }
+
+    if(level.mode === "shift"){
+      const currentValues = [];
+      for(let j = 0; j < n; j++){
+        currentValues.push(document.getElementById(`input-${levelIndex}-${j}`).value.trim());
+      }
+      for(let j = 0; j < n; j++){
+        const incoming = currentValues[(j - 1 + n) % n];
+        document.getElementById(`input-${levelIndex}-${j}`).value = incoming;
+      }
+    }
+
+    for(let i = 0; i < n; i++){
+      const input = document.getElementById(`input-${levelIndex}-${i}`);
+      const feedback = document.getElementById(`feedback-${levelIndex}-${i}`);
+      const value = input.value.trim();
+      const answer = getAnswer(levelIndex, i);
+
+      if(value.toLowerCase() === answer.toLowerCase()){
+        feedback.textContent = "Your input is correct!";
+        feedback.className = "feedback correct";
+
+        if(level.mode === "cycle"){
+          const currentColor = heartState[levelIndex][i];
+          const cycleIdx = HEART_CYCLE.indexOf(currentColor);
+          const nextColor = HEART_CYCLE[(cycleIdx + 1) % HEART_CYCLE.length];
+          heartState[levelIndex][i] = nextColor;
+          const iconEl = document.getElementById(`icon-${levelIndex}-${i}`);
+          if(iconEl) iconEl.innerHTML = HEART_EMOJI[nextColor];
+        }
+      } else {
+        feedback.textContent = `Your input is wrong, the right answer is ${answer}.`;
+        feedback.className = "feedback wrong";
+      }
+    }
+  }
+
+  function openStoobidModal(){
+    document.getElementById("stoobid-modal").classList.add("active");
+  }
+
+  function closeStoobidModal(){
+    document.getElementById("stoobid-modal").classList.remove("active");
+  }
+
+  const memoryTimers = {};
+  const heartState = {};
+
+  function initHeartState(levelIndex){
+    const level = levels[levelIndex];
+    heartState[levelIndex] = [...level.names];
+    for(let i = 0; i < level.names.length; i++){
+      const iconEl = document.getElementById(`icon-${levelIndex}-${i}`);
+      if(iconEl) iconEl.innerHTML = level.items[i].icon;
+    }
+  }
+
+  function startMemoryTimer(levelIndex){
+    const level = levels[levelIndex];
+    const n = level.names.length;
+
+    // Cancel any timer left over from a previous visit to this level
+    if(memoryTimers[levelIndex]){
+      clearTimeout(memoryTimers[levelIndex]);
+    }
+
+    // Show the real flowers again (in case this level was visited before)
+    for(let i = 0; i < n; i++){
+      const iconEl = document.getElementById(`icon-${levelIndex}-${i}`);
+      if(iconEl) iconEl.innerHTML = level.items[i].icon;
+    }
+
+    // After 5 seconds, hide them so the player has to answer from memory
+    memoryTimers[levelIndex] = setTimeout(() => {
+      for(let i = 0; i < n; i++){
+        const iconEl = document.getElementById(`icon-${levelIndex}-${i}`);
+        if(iconEl) iconEl.innerHTML = "❓";
+      }
+    }, 5000);
+  }
+
+  function goToLevel(index){
+    document.querySelectorAll(".level-screen").forEach(el => el.classList.remove("active"));
+    if(index >= levels.length){
+      document.getElementById("end").classList.add("active");
+    } else {
+      document.getElementById("level-" + index).classList.add("active");
+      if(levels[index].mode === "memory"){
+        startMemoryTimer(index);
+      }
+      if(levels[index].mode === "cycle"){
+        initHeartState(index);
+      }
+    }
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function restart(){
+    document.querySelectorAll(".item-input").forEach(el => el.value = "");
+    document.querySelectorAll(".feedback").forEach(el => {el.textContent = ""; el.className = "feedback";});
+    levels.forEach((level, levelIndex) => {
+      if(level.mode === "dragmatch"){
+        const trayEl = document.getElementById(`tray-${levelIndex}`);
+        document.querySelectorAll(`#level-${levelIndex} .drag-chip`).forEach(chip => {
+          trayEl.appendChild(chip);
+        });
+      }
+    });
+    document.querySelectorAll(".level-screen").forEach(el => el.classList.remove("active"));
+    document.getElementById("landing").classList.add("active");
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+</script>
+
+</body>
+</html>
