@@ -2,31 +2,31 @@
 
 
 
-# [Project Name] 🎯
+# Outsmart us🎯
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: outsmart us 
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Team Lead: [devanand.U.S] - [thejus engineering college]
+- Member 2: [Devipriya.P.P] - [thejus engineering College]
+
 
 ### Project Description
-[2-3 lines about what your project does]
+it is a fun and interactive app like project that tests you're patience and patterns recognition skills
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+to test gk
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+test their patience 
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
+- html
 - [Frameworks used]
 - [Libraries used]
 - [Tools used]
